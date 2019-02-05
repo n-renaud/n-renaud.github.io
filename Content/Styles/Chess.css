@@ -1,0 +1,83 @@
+﻿body {
+    background-color: black;
+}
+
+.square.hover .dot {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+    background-color: #00c4ff;
+}
+
+.square.hover .piece {
+    z-index: 110;
+}
+
+.wrapper {
+	width: 100%;
+	height: 90vh;
+	position: relative;
+}
+
+.square {
+    position:relative;
+}
+
+.chessBoard {
+	height: 100%;
+	padding: 3px;
+	background-color: black;
+	width: 44%;
+	margin-left: auto;
+	margin-top: 2.5%;
+	margin-right: auto;
+}
+
+	.chessBoard td {
+		vertical-align: top;
+		height: 12.5%;
+		width: 12.5%;
+	}
+
+	.chessBoard td img {
+		width: 100%;
+	}
+
+.whiteTile {
+    background-color: #dee3e6;
+}
+
+.blackTile {
+    background-color: #8ca2ad;
+}
+
+.clone {
+    display:none;
+}
+
+.dot {
+    height: 30%;
+    width: 30%;
+    border-radius: 50%;
+    margin-top: 36.5%;
+    margin-left: 35.5%;
+    position: absolute;
+    z-index: 100;
+}
+
+.whiteTile .dot {
+    background-color: #8ca2ad;
+}
+
+.blackTile .dot {
+    background-color: #dee3e6;
+}
+
+.square.check {
+    background-color: #ffc800;
+}
+
+.square.checkmate {
+    background-color: #ff0000;
+}
