@@ -26,10 +26,15 @@ function initTileDroppable() {
             var direction = Movement.isMoveLegal(squareOn, squareTo);
 
             if (direction != null) {
+
                 moveToSquare(pieceBeingDragged, destination, squareOn, squareTo);
+
                 if (direction.onMove != null)
-                    processOnMove(direction.onMove()); 
-            }     
+                    processOnMove(direction.onMove());
+
+                initPieceDraggable();
+
+            }
 
         }
     });
@@ -50,23 +55,23 @@ function moveRook(rookWasAt, rookIsAt) {
 
 function moveToSquare(pieceBeingDragged, destination, squareOn, squareTo) {
 
-    Board.castlingChecks(squareOn);
+    Board.castlingChecks(squareOn, squareTo);
 
     Board.movePieceTo(squareOn, squareTo);
-    
+
     pieceBeingDragged.remove();
 
     pawnPromotionCheck(squareTo);
 
     destination.html(squareTo.Piece.getHtml());
 
-    initPieceDraggable();
-
     Board.ColorMoving = Board.ColorMoving == White ? Black : White;
 
     Board.clearChecks();
 
     Board.checkForChecks();
+
+    $(".dot").remove();
 
 }
 
@@ -106,21 +111,32 @@ function getSquareTo(destination) {
 
 function initPieceDraggable() {
 
+    $(".piece").off('click').on('click', function () {
+
+        showPieceAvailableMoves(this);
+
+    });
+
     $(".piece").draggable({
         revert: true,
         revertDuration: 0,
         zIndex: 9999,
         start: function (event, ui) {
-            
-            var squareOn = getSquareOn(event.target);
 
-            Board.showAvailableMoves(squareOn);
+            showPieceAvailableMoves(event.target);
 
-        },
-        stop: function () {
-            $(".dot").remove();
         }
     });
+
+}
+
+function showPieceAvailableMoves(piece) {
+
+    $(".dot").remove();
+
+    var squareOn = getSquareOn(piece);
+
+    Board.showAvailableMoves(squareOn);
 
 }
 

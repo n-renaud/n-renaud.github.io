@@ -9,17 +9,18 @@ Sound.getSrc = function () {
     return $(".soundSrc");
 };
 
-Sound.move = function () {
+Sound.moveComplete = function () {
 
     if (!Sound.on)
         return;
 
     var audio;
 
-    if (Board.ColorMoving == White)
+    if (Board.ColorMoving == White) //meaning black just moved
+        audio = new Audio(Sound.sounds + "moveBlack.wav");
+    else if(Board.ColorMoving == Black) //meaning white just moved
         audio = new Audio(Sound.sounds + "moveWhite.wav");
-    else if(Board.ColorMoving == Black)
-       audio = new Audio(Sound.sounds + "moveBlack.wav");
+
     audio.play();
 
 };

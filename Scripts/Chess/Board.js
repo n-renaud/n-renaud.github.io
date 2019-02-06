@@ -18,16 +18,16 @@ function Board(playingColor) {
 
 }
 
-Board.prototype.castlingChecks = function (squareMoving) {
+Board.prototype.castlingChecks = function (squareMoving, squareTo) {
 
     if (squareMoving.Piece.Color == White)
-        this.whiteCastlingChecks(squareMoving);
+        this.whiteCastlingChecks(squareMoving, squareTo);
     else if (squareMoving.Piece.Color == Black)
-        this.blackCastlingChecks(squareMoving);
+        this.blackCastlingChecks(squareMoving, squareTo);
 
 };
 
-Board.prototype.whiteCastlingChecks = function (squareMoving) {
+Board.prototype.whiteCastlingChecks = function (squareMoving, squareTo) {
 
     if (squareMoving.Piece.Piece == Pieces.King) {
         this.WhiteLeftCastling = false;
@@ -40,9 +40,15 @@ Board.prototype.whiteCastlingChecks = function (squareMoving) {
         else if (squareMoving.Col == H)
             this.WhiteRightCastling = false;
 
+    if (squareTo.Piece != null && squareTo.Piece.Piece == Pieces.Rook)
+        if (squareTo.Col == A)
+            this.BlackLeftCastling = false;
+        else if (squareTo.Col == H)
+            this.BlackRightCastling = false;
+
 };
 
-Board.prototype.blackCastlingChecks = function (squareMoving) {
+Board.prototype.blackCastlingChecks = function (squareMoving, squareTo) {
 
     if (squareMoving.Piece.Piece == Pieces.King) {
         this.BlackLeftCastling = false;
@@ -54,6 +60,12 @@ Board.prototype.blackCastlingChecks = function (squareMoving) {
             this.BlackLeftCastling = false;
         else if (squareMoving.Col == H)
             this.BlackRightCastling = false;
+
+    if (squareTo.Piece != null && squareTo.Piece.Piece == Pieces.Rook)
+        if (squareTo.Col == A)
+            this.WhiteLeftCastling = false;
+        else if (squaresquareToMoving.Col == H)
+            this.WhiteRightCastling = false;
 
 };
 
@@ -93,14 +105,14 @@ Board.prototype.checkForChecks = function () {
 
     if (Movement.isSquareTargetedByEnemy(kingSquare, allEnemyMoves)) {
         if (Movement.getAllLegalMovesForColor(this.ColorMoving).length == 0) {
-            this.checkmate(kingSquare); 
+            this.checkmate(kingSquare);
             Sound.checkmate();
         } else {
             this.check(kingSquare);
             Sound.check();
         }
     } else
-        Sound.move();
+        Sound.moveComplete();
 };
 
 Board.prototype.showAvailableMoves = function (square) {
