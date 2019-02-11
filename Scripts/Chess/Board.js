@@ -6,6 +6,7 @@ function Board(playingColor) {
     this.LastLegalMoves = null;
     this.ColorInCheck = null;
     this.ColorMoving = White;
+    this.ColorPlaying = playingColor;
     this.initSquaresArrays();
     this.setPiecesToNewGame();
     this.assignSquaresRowCol(playingColor);
@@ -64,7 +65,7 @@ Board.prototype.blackCastlingChecks = function (squareMoving, squareTo) {
     if (squareTo.Piece != null && squareTo.Piece.Piece == Pieces.Rook)
         if (squareTo.Col == A)
             this.WhiteLeftCastling = false;
-        else if (squaresquareToMoving.Col == H)
+        else if (squareTo.Col == H)
             this.WhiteRightCastling = false;
 
 };
@@ -80,7 +81,7 @@ Board.prototype.GetSquares = function () {
 
 Board.prototype.startHypotheticalMove = function (squareOn, squareTo) {
 
-    this.HypotheticalSquares = JSON.parse(JSON.stringify(Board.Squares));
+    this.HypotheticalSquares = JSON.parse(JSON.stringify(this.Squares));
 
     squareOn = this.getSquare(squareOn.Row, squareOn.Col);
     squareTo = this.getSquare(squareTo.Row, squareTo.Col);
@@ -111,13 +112,16 @@ Board.prototype.checkForChecks = function () {
             this.check(kingSquare);
             Sound.check();
         }
+    } else if (Movement.getAllLegalMovesForColor(this.ColorMoving).length == 0) {
+        this.stalemate(kingSquare);
+        Sound.stalemate();
     } else
         Sound.moveComplete();
 };
 
 Board.prototype.showAvailableMoves = function (square) {
 
-    if (square.Piece.Color != Board.ColorMoving)
+    if (square.Piece.Color != this.ColorMoving)
         return;
 
     var legalMoves = Movement.getAllLegalMovesFromSquare(square);
@@ -127,7 +131,7 @@ Board.prototype.showAvailableMoves = function (square) {
     for (var i = 0; i < legalMoves.length; i++) {
         var move = legalMoves[i];
 
-        $(".square[data-row=" + move.Square.Row + "][data-col=" + move.Square.Col + "]").prepend("<div class='dot'></div>");
+        $(".square[data-row=" + move.SquareTo.Row + "][data-col=" + move.SquareTo.Col + "]").prepend("<div class='dot'></div>");
 
     }
 
@@ -135,6 +139,7 @@ Board.prototype.showAvailableMoves = function (square) {
 
 Board.prototype.clearChecks = function () {
 
+    $(".checkmate").removeClass("checkmate");
     $(".check").removeClass("check");
 
 };
@@ -142,6 +147,12 @@ Board.prototype.clearChecks = function () {
 Board.prototype.checkmate = function (square) {
 
     $(".square[data-row=" + square.Row + "][data-col=" + square.Col + "]").addClass("checkmate");
+
+};
+
+Board.prototype.stalemate = function (square) {
+
+    $(".square[data-row=" + square.Row + "][data-col=" + square.Col + "]").addClass("stalemate");
 
 };
 
@@ -169,6 +180,14 @@ Board.prototype.getKingSquare = function (color) {
 
         }
     }
+
+};
+
+Board.prototype.clearAllPieces = function () {
+
+    for (var col = 1; col <= 8; col++) 
+        for (var row = 1; row <= 8; row++) 
+            $(".square[data-row=" + row + "][data-col=" + col + "]").html("");     
 
 };
 

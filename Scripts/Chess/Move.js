@@ -1,7 +1,8 @@
 ﻿
-function Move(squareTo, direction) {
+function Move(squareOn, squareTo, direction) {
 
-    this.Square = squareTo;
+    this.SquareOn = squareOn;
+    this.SquareTo = squareTo;
     this.Direction = direction;
 
 }

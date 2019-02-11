@@ -16,9 +16,9 @@ Sound.moveComplete = function () {
 
     var audio;
 
-    if (Board.ColorMoving == White) //meaning black just moved
+    if (GameBoard.ColorMoving == White) //meaning black just moved
         audio = new Audio(Sound.sounds + "moveBlack.wav");
-    else if(Board.ColorMoving == Black) //meaning white just moved
+    else if (GameBoard.ColorMoving == Black) //meaning white just moved
         audio = new Audio(Sound.sounds + "moveWhite.wav");
 
     audio.play();
@@ -31,6 +31,16 @@ Sound.check = function () {
         return;
 
     var audio = new Audio(Sound.sounds + "check.wav");
+    audio.play();
+
+};
+
+Sound.stalemate = function () {
+
+    if (!Sound.on)
+        return;
+
+    var audio = new Audio(Sound.sounds + "stalemate.wav");
     audio.play();
 
 };

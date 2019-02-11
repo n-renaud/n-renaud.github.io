@@ -3,16 +3,16 @@ Movement = {};
 
 Movement.isMoveLegal = function (squareOn, squareTo) {
 
-    if (Board.ColorMoving != squareOn.Piece.Color)
+    if (!this.validPieceColor(squareOn))
         return null;
 
-    var moves = Board.LastLegalMoves;
+    var moves = GameBoard.LastLegalMoves;
 
     var direction = null;
 
     for (var i = 0; i < moves.length; i++) {
 
-        var square = moves[i].Square;
+        var square = moves[i].SquareTo;
 
         if (square.Row == squareTo.Row && square.Col == squareTo.Col) {
             direction = moves[i].Direction;
@@ -24,6 +24,19 @@ Movement.isMoveLegal = function (squareOn, squareTo) {
     return direction;
 
 };
+
+Movement.validPieceColor = function (squareOn) {
+
+    if (Opponent == Self) {
+        if (GameBoard.ColorMoving != squareOn.Piece.Color)
+            return false;
+    } else
+        if (GameBoard.ColorPlaying != squareOn.Piece.Color)
+            return false;
+
+    return true;
+
+}
 
 Movement.getDirection = function (squareOn, squareTo) {
 
@@ -60,7 +73,7 @@ Movement.isMoveUnique = function (square, legalMoves) {
 
         var legalMove = legalMoves[i];
 
-        if (legalMove.Square == square) {
+        if (legalMove.SquareTo == square) {
             unique = false;
             break;
         }
@@ -90,7 +103,7 @@ Movement.getAllLegalMovesFromSquare = function (squareOn) {
 
         for (var j = 0; j < legalSquares.length; j++)
             if (Movement.isMoveUnique(legalSquares[j], legalMoves))
-                legalMoves.push(new Move(legalSquares[j], direction));
+                legalMoves.push(new Move(squareOn, legalSquares[j], direction));
 
     }
 
@@ -142,7 +155,7 @@ Movement.getAllLegalMovesForColor = function (color) {
 
     var legalTargets = []
 
-    var allSquaresWithPieces = Board.getSquaresWithPieces(color);
+    var allSquaresWithPieces = GameBoard.getSquaresWithPieces(color);
 
     for (var i = 0; i < allSquaresWithPieces.length; i++) {
 
@@ -158,13 +171,13 @@ Movement.getAllLegalMovesForColor = function (color) {
 
 Movement.getAllEnemyLegalMoves = function () {
 
-    return Movement.getAllLegalMovesForColor(Board.ColorMoving == White ? Black : White);
+    return Movement.getAllLegalMovesForColor(GameBoard.ColorMoving == White ? Black : White);
 
 };
 
 Movement.getAllMyLegalMoves = function () {
 
-    return Movement.getAllLegalMovesForColor(Board.ColorMoving);
+    return Movement.getAllLegalMovesForColor(GameBoard.ColorMoving);
 
 };
 
@@ -176,7 +189,7 @@ Movement.isSquareTargetedByEnemy = function (square, allEnemyMoves) {
 
         var enemyMove = allEnemyMoves[i];
 
-        if (enemyMove.Square.Row == square.Row && enemyMove.Square.Col == square.Col && enemyMove.Direction.cantKill != true) {
+        if (enemyMove.SquareTo.Row == square.Row && enemyMove.SquareTo.Col == square.Col && enemyMove.Direction.cantKill != true) {
             isSquareTargeted = true;
             break;
         }
@@ -228,18 +241,18 @@ Movement.canPieceMoveToOccupiedSquare = function (squareOn, squareTo, direction)
 
 Movement.wouldKingBeSafeAfterLegalMove = function (squareOn, squareTo) {
 
-    if (squareOn.Piece.Color != Board.ColorMoving)
+    if (squareOn.Piece.Color != GameBoard.ColorMoving)
         return true;
 
-    Board.startHypotheticalMove(squareOn, squareTo);
+    GameBoard.startHypotheticalMove(squareOn, squareTo);
 
     var enemyMoves = Movement.getAllEnemyLegalMoves();
 
-    var kingSquare = Board.getKingSquare(squareOn.Piece.Color);
+    var kingSquare = GameBoard.getKingSquare(squareOn.Piece.Color);
 
     var wouldKingBeSafe = !Movement.isSquareTargetedByEnemy(kingSquare, enemyMoves);
 
-    Board.endHypotheticalMove();
+    GameBoard.endHypotheticalMove();
 
     return wouldKingBeSafe;
 
@@ -254,7 +267,7 @@ Movement.getSingleSquare = function (squareOn, xDir, yDir) {
     var newY = onY + yDir;
 
     if (isInBoard(newX, newY))
-        return Board.GetSquares()[newX][newY];
+        return GameBoard.GetSquares()[newX][newY];
 
     return null
 
@@ -283,7 +296,7 @@ Movement.getLegalSquaresInLine = function (squareOn, direction) {
         if (!isInBoard(lineX, lineY))
             break;
 
-        var squareTo = Board.GetSquares()[lineX][lineY];
+        var squareTo = GameBoard.GetSquares()[lineX][lineY];
 
         var legality = Movement.isSquareLegalToMoveTo(squareOn, squareTo, direction);
 
@@ -323,76 +336,76 @@ Movement[Pieces.Queen] = [{ x: -7 }, { x: 7 }, { y: -7 }, { y: 7 }, { x: -7, y: 
 
 //implement castling
 Movement[Pieces.King] = [{ x: -1 }, { x: 1 }, { y: -1 }, { y: 1 }, { x: -1, y: -1 }, { x: -1, y: 1 }, { x: 1, y: -1 }, { x: 1, y: 1 },
-    {
-        x: 2,
-        condition: function (squareOn, color) {
+{
+    x: 2,
+    condition: function (squareOn, color) {
 
-            if (color != White || !Board.WhiteRightCastling || Board.ColorInCheck == White)
-                return false;
+        if (color != White || !GameBoard.WhiteRightCastling || GameBoard.ColorInCheck == White)
+            return false;
 
-            var F1 = Board.getSquare(1, F);
+        var F1 = GameBoard.getSquare(1, F);
 
-            return Movement.wouldKingBeSafeAfterLegalMove(squareOn, F1);
+        return Movement.wouldKingBeSafeAfterLegalMove(squareOn, F1);
 
-        },
-        onMove: function () {
-            var rook = Board.getSquare(1, H);
-            var moveTo = Board.getSquare(1, F);
-            Board.movePieceTo(rook, moveTo);
-            return { castle: [rook, moveTo] };
-        }
-    },{
-        x: -2,
-        condition: function (squareOn, color) {
-            if (color != White || !Board.WhiteLeftCastling || Board.ColorInCheck == White || Board.getSquare(1, B).Piece != null)
-                return false;
+    },
+    onMove: function () {
+        var rook = GameBoard.getSquare(1, H);
+        var moveTo = GameBoard.getSquare(1, F);
+        GameBoard.movePieceTo(rook, moveTo);
+        return { castle: [rook, moveTo] };
+    }
+}, {
+    x: -2,
+    condition: function (squareOn, color) {
+        if (color != White || !GameBoard.WhiteLeftCastling || GameBoard.ColorInCheck == White || GameBoard.getSquare(1, B).Piece != null)
+            return false;
 
-            var D1 = Board.getSquare(1, D);
+        var D1 = GameBoard.getSquare(1, D);
 
-            return Movement.wouldKingBeSafeAfterLegalMove(squareOn, D1);
+        return Movement.wouldKingBeSafeAfterLegalMove(squareOn, D1);
 
-        },
-        onMove: function () {
-            var rook = Board.getSquare(1, A);
-            var moveTo = Board.getSquare(1, D);
-            Board.movePieceTo(rook, moveTo);
-            return { castle: [rook, moveTo] };
-        }
-    },{
-        x: 2,
-        condition: function (squareOn, color) {
-            if (color != Black || !Board.BlackRightCastling || Board.ColorInCheck == Black)
-                return false;
+    },
+    onMove: function () {
+        var rook = GameBoard.getSquare(1, A);
+        var moveTo = GameBoard.getSquare(1, D);
+        GameBoard.movePieceTo(rook, moveTo);
+        return { castle: [rook, moveTo] };
+    }
+}, {
+    x: 2,
+    condition: function (squareOn, color) {
+        if (color != Black || !GameBoard.BlackRightCastling || GameBoard.ColorInCheck == Black)
+            return false;
 
-            var F8 = Board.getSquare(8, F);
+        var F8 = GameBoard.getSquare(8, F);
 
-            return Movement.wouldKingBeSafeAfterLegalMove(squareOn, F8);
+        return Movement.wouldKingBeSafeAfterLegalMove(squareOn, F8);
 
-        },
-        onMove: function () {
-            var rook = Board.getSquare(8, H);
-            var moveTo = Board.getSquare(8, F);
-            Board.movePieceTo(rook, moveTo);
-            return { castle: [rook, moveTo] };
-        }
-    },{
-        x: -2,
-        condition: function (squareOn, color) {
-            if (color != Black || !Board.BlackLeftCastling || Board.ColorInCheck == Black || Board.getSquare(8, B).Piece != null)
-                return false;
+    },
+    onMove: function () {
+        var rook = GameBoard.getSquare(8, H);
+        var moveTo = GameBoard.getSquare(8, F);
+        GameBoard.movePieceTo(rook, moveTo);
+        return { castle: [rook, moveTo] };
+    }
+}, {
+    x: -2,
+    condition: function (squareOn, color) {
+        if (color != Black || !GameBoard.BlackLeftCastling || GameBoard.ColorInCheck == Black || GameBoard.getSquare(8, B).Piece != null)
+            return false;
 
-            var D8 = Board.getSquare(8, D);
+        var D8 = GameBoard.getSquare(8, D);
 
-            return Movement.wouldKingBeSafeAfterLegalMove(squareOn, D8);
+        return Movement.wouldKingBeSafeAfterLegalMove(squareOn, D8);
 
-        },
-        onMove: function () {
-            var rook = Board.getSquare(8, A);
-            var moveTo = Board.getSquare(8, D);
-            Board.movePieceTo(rook, moveTo);
-            return { castle: [rook, moveTo] };
-        }
-    }];
+    },
+    onMove: function () {
+        var rook = GameBoard.getSquare(8, A);
+        var moveTo = GameBoard.getSquare(8, D);
+        GameBoard.movePieceTo(rook, moveTo);
+        return { castle: [rook, moveTo] };
+    }
+}];
 
 //implement en passant
 Movement[Pieces.Pawn] = [

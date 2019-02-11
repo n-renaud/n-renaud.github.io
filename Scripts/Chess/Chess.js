@@ -1,12 +1,39 @@
 
 $(function () {
 
-    Board = new Board(White);
-    Board.drawPieces();
-    initTileDroppable();
-    initPieceDraggable();
+    initSideBar();
+    newGame(White);
 
 });
+
+function newGame(colorPlaying) {
+
+    GameBoard = new Board(colorPlaying);
+    GameBoard.clearAllPieces();
+    GameBoard.drawPieces();
+    GameBoard.clearChecks();
+
+    initTileDroppable();
+    initAllPiecesDraggable();
+
+    setupOpponent(colorPlaying);
+
+    if (Opponent != Self && colorPlaying == Black)
+        setTimeout(function () { Opponent.move(); }, ThinkingTime);   
+
+}
+
+function setupOpponent(colorPlaying) {
+    switch (getSelectedOpponent()) {
+        case "1":
+            Opponent = Self; break;
+        case "2":
+            Opponent = new Albert(colorPlaying == White ? Black : White); break;
+        default:
+            console.error("Invalid agent Id: " + id);
+    }
+
+}
 
 function initTileDroppable() {
 
@@ -27,12 +54,12 @@ function initTileDroppable() {
 
             if (direction != null) {
 
-                moveToSquare(pieceBeingDragged, destination, squareOn, squareTo);
+                executePlayerMove(pieceBeingDragged, destination, squareOn, squareTo);
 
                 if (direction.onMove != null)
                     processOnMove(direction.onMove());
 
-                initPieceDraggable();
+                initAllPiecesDraggable();
 
             }
 
@@ -53,11 +80,9 @@ function moveRook(rookWasAt, rookIsAt) {
     $(".square[data-row=" + rookIsAt.Row + "][data-col=" + rookIsAt.Col + "]").html(Board.GetSquares()[rookIsAt.Col][rookIsAt.Row].Piece.getHtml());
 }
 
-function moveToSquare(pieceBeingDragged, destination, squareOn, squareTo) {
+function executePlayerMove(pieceBeingDragged, destination, squareOn, squareTo) {
 
-    Board.castlingChecks(squareOn, squareTo);
-
-    Board.movePieceTo(squareOn, squareTo);
+    initiateMove(squareOn, squareTo);
 
     pieceBeingDragged.remove();
 
@@ -65,11 +90,42 @@ function moveToSquare(pieceBeingDragged, destination, squareOn, squareTo) {
 
     destination.html(squareTo.Piece.getHtml());
 
-    Board.ColorMoving = Board.ColorMoving == White ? Black : White;
+    resolveMove();
 
-    Board.clearChecks();
+    if (Opponent != Self)
+        setTimeout(function () { Opponent.move(); }, ThinkingTime);   
 
-    Board.checkForChecks();
+}
+
+function executeAgentMove(squareOn, squareTo) {
+
+    initiateMove(squareOn, squareTo);
+
+    $(".square[data-row=" + squareOn.Row + "][data-col=" + squareOn.Col + "]").html("");
+
+    pawnPromotionCheck(squareTo);
+
+    $(".square[data-row=" + squareTo.Row + "][data-col=" + squareTo.Col + "]").html(squareTo.Piece.getHtml());
+
+    resolveMove();
+
+}
+
+function initiateMove(squareOn, squareTo) {
+
+    GameBoard.castlingChecks(squareOn, squareTo);
+
+    GameBoard.movePieceTo(squareOn, squareTo);
+
+}
+
+function resolveMove() {
+
+    GameBoard.ColorMoving = GameBoard.ColorMoving == White ? Black : White;
+
+    GameBoard.clearChecks();
+
+    GameBoard.checkForChecks();
 
     $(".dot").remove();
 
@@ -96,7 +152,7 @@ function getSquareOn(pieceBeingDragged) {
     var squareOnRow = origin.attr("data-row");
     var squareOnCol = origin.attr("data-col");
 
-    return Board.GetSquares()[squareOnCol][squareOnRow];
+    return GameBoard.GetSquares()[squareOnCol][squareOnRow];
 
 }
 
@@ -105,11 +161,11 @@ function getSquareTo(destination) {
     var squareOnRow = destination.attr("data-row");
     var squareOnCol = destination.attr("data-col");
 
-    return Board.GetSquares()[squareOnCol][squareOnRow];
+    return GameBoard.GetSquares()[squareOnCol][squareOnRow];
 
 }
 
-function initPieceDraggable() {
+function initAllPiecesDraggable() {
 
     $(".piece").off('click').on('click', function () {
 
@@ -122,9 +178,7 @@ function initPieceDraggable() {
         revertDuration: 0,
         zIndex: 9999,
         start: function (event, ui) {
-
             showPieceAvailableMoves(event.target);
-
         }
     });
 
@@ -136,7 +190,7 @@ function showPieceAvailableMoves(piece) {
 
     var squareOn = getSquareOn(piece);
 
-    Board.showAvailableMoves(squareOn);
+    GameBoard.showAvailableMoves(squareOn);
 
 }
 

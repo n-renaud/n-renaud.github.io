@@ -4,6 +4,7 @@
 <head>
     <script type="text/javascript" src="Scripts/jquery-3.3.1.js"></script>
     <script type="text/javascript" src="Scripts/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="Scripts/Chess/SideBar.js"></script>
     <script type="text/javascript" src="Scripts/Chess/Common.js"></script>
     <script type="text/javascript" src="Scripts/Chess/Movement.js"></script>
     <script type="text/javascript" src="Scripts/Chess/Sound.js"></script>
@@ -13,7 +14,10 @@
     <script type="text/javascript" src="Scripts/Chess/Pieces/Pawn.js"></script>
     <script type="text/javascript" src="Scripts/Chess/Square.js"></script>
     <script type="text/javascript" src="Scripts/Chess/Move.js"></script>
+    <script type="text/javascript" src="Scripts/Chess/Agents/Agent.js"></script>
+    <script type="text/javascript" src="Scripts/Chess/Agents/Albert/Albert.js"></script>
     <link rel="stylesheet" href="Content/Styles/Chess.css" />
+    <link rel="stylesheet" href="Content/Styles/bootstrap.min.css" />
     <meta charset="utf-8" />
     <title>Chess</title>
 </head>
@@ -104,6 +108,26 @@
                 <td class="whiteTile square" data-x="8" data-y="1"></td>
             </tr>
         </table>
+        <div class="sideBar">
+            <div class="row">
+                <div class="col-lg-12"><label class="label-control">Play against:</label></div>
+            </div>
+            <div class="row paddingBottom10">
+                <div class="col-lg-12">
+                    <select class="playAgainst form-control">
+                        <option value="1" selected>Self</option>
+                        <option value="2">Albert</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12"><label class="label-control">New Game as:</label></div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6"><button type="button" data-color="1" class="playAs btn btn-light btn-block">White</button></div>
+                <div class="col-lg-6"><button type="button" data-color="0" class="playAs btn btn-dark btn-block">Black</button></div>
+            </div>
+        </div>
     </div>
     <img class="chessPiece clone">
 </body>
