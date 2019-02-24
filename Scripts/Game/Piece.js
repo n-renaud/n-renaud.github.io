@@ -16,11 +16,3 @@ Piece.prototype.ImageText = function () {
 Piece.prototype.getHtml = function () {
     return "<img class='piece' data-id='" + this.Id +"' data-piece='" + this.Piece + "' data-color='" + this.Color + "' src='" + this.ImageText() + "'/>";
 };
-
-Piece.prototype.getLegalMoves = function () {
-    console.error("GetLegalMoves not overriden: " + getColorText(this.Color) + " " + getPieceText(this.Piece));
-};
-
-Piece.prototype.isMoveLegal = function () {
-    console.error("IsMoveLegal not overriden: " + getColorText(this.Color) + " " + getPieceText(this.Piece));
-};

@@ -43,7 +43,7 @@
     position:relative;
 }
 
-.chessBoard {
+.chessBoard, .warBoard {
     height: 100%;
     float: left;
     width: 80%;
@@ -95,4 +95,31 @@
 
 .square.checkmate {
     background-color: #ff0000;
+}
+
+.bottomRow {
+    position: absolute;
+    bottom: 0;
+    width: 21%;
+    bottom: 5px;
+}
+
+.warBoard {
+    background-color: #b4babd;
+    border-right: 1px solid black;
+}
+
+.warBanner{
+    padding: 15px;
+    border-bottom: 1px solid black;
+}
+
+    .warBanner .vsText {
+        font-size: 50px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+.fight {
+    margin-top: 20px;
 }

@@ -1,37 +1,47 @@
 
+var currentGameBoard;
+
 $(function () {
 
     initSideBar();
-    newGame(White);
+    createAndStartNewGame(Self, Self);
 
 });
 
-function newGame(colorPlaying) {
+function createAndStartNewGame(whiteId, blackId) {
 
-    GameBoard = new Board(colorPlaying);
-    GameBoard.clearAllPieces();
-    GameBoard.drawPieces();
-    GameBoard.clearChecks();
-
-    initTileDroppable();
-    initAllPiecesDraggable();
-
-    setupOpponent(colorPlaying);
-
-    if (Opponent != Self && colorPlaying == Black)
-        setTimeout(function () { Opponent.move(); }, ThinkingTime);   
+    startNewGame(newBoard(whiteId, blackId));
 
 }
 
-function setupOpponent(colorPlaying) {
-    switch (getSelectedOpponent()) {
-        case "1":
-            Opponent = Self; break;
-        case "2":
-            Opponent = new Albert(colorPlaying == White ? Black : White); break;
-        default:
-            console.error("Invalid agent Id: " + id);
-    }
+function updateColorViewing(colorViewing) {
+    currentGameBoard.ColorViewing = colorViewing;
+    refreshBoard();
+}
+
+function startNewGame(newBoard) {
+
+    currentGameBoard = newBoard;
+
+    refreshBoard();
+
+    if (currentGameBoard.tryPerformNextMove())
+        resolveMove();
+
+}
+
+function refreshBoard() {
+
+    $(".dot").remove();
+    clearAllPieces();
+    clearUiOfChecks();
+
+    assignSquaresRowCol(currentGameBoard.ColorViewing);
+
+    drawPieces();
+
+    initTileDroppable();
+    initAllPiecesDraggable();
 
 }
 
@@ -50,98 +60,24 @@ function initTileDroppable() {
 
             var squareTo = getSquareTo(destination);
 
-            var direction = Movement.isMoveLegal(squareOn, squareTo);
-
-            if (direction != null) {
-
-                executePlayerMove(pieceBeingDragged, destination, squareOn, squareTo);
-
-                if (direction.onMove != null)
-                    processOnMove(direction.onMove());
-
-                initAllPiecesDraggable();
-
-            }
+            if (currentGameBoard.tryPerformMove(squareOn, squareTo))
+                resolveMove();
 
         }
     });
 
 }
 
-function processOnMove(onMove) {
-
-    if (onMove.castle != null)
-        moveRook(onMove.castle[0], onMove.castle[1]);
-
-}
-
-function moveRook(rookWasAt, rookIsAt) {
-    $(".square[data-row=" + rookWasAt.Row + "][data-col=" + rookWasAt.Col + "]").html("");
-    $(".square[data-row=" + rookIsAt.Row + "][data-col=" + rookIsAt.Col + "]").html(Board.GetSquares()[rookIsAt.Col][rookIsAt.Row].Piece.getHtml());
-}
-
-function executePlayerMove(pieceBeingDragged, destination, squareOn, squareTo) {
-
-    initiateMove(squareOn, squareTo);
-
-    pieceBeingDragged.remove();
-
-    pawnPromotionCheck(squareTo);
-
-    destination.html(squareTo.Piece.getHtml());
-
-    resolveMove();
-
-    if (Opponent != Self)
-        setTimeout(function () { Opponent.move(); }, ThinkingTime);   
-
-}
-
-function executeAgentMove(squareOn, squareTo) {
-
-    initiateMove(squareOn, squareTo);
-
-    $(".square[data-row=" + squareOn.Row + "][data-col=" + squareOn.Col + "]").html("");
-
-    pawnPromotionCheck(squareTo);
-
-    $(".square[data-row=" + squareTo.Row + "][data-col=" + squareTo.Col + "]").html(squareTo.Piece.getHtml());
-
-    resolveMove();
-
-}
-
-function initiateMove(squareOn, squareTo) {
-
-    GameBoard.castlingChecks(squareOn, squareTo);
-
-    GameBoard.movePieceTo(squareOn, squareTo);
-
-}
-
 function resolveMove() {
 
-    GameBoard.ColorMoving = GameBoard.ColorMoving == White ? Black : White;
+    refreshBoard();
 
-    GameBoard.clearChecks();
+    updateUiForChecks();
 
-    GameBoard.checkForChecks();
-
-    $(".dot").remove();
-
-}
-
-function pawnPromotionCheck(square) {
-
-    var piece = square.Piece;
-
-    if (piece.Piece != Pieces.Pawn)
-        return;
-
-    if (piece.Color == White && square.Row == 8)
-        square.Piece = new Piece(White, Pieces.Queen);
-    else if (piece.Color == Black && square.Row == 1)
-        square.Piece = new Piece(Black, Pieces.Queen);
+    setTimeout(function () {
+        if (currentGameBoard.tryPerformNextMove())
+            resolveMove();
+    }, ThinkingTime);    
 
 }
 
@@ -152,7 +88,7 @@ function getSquareOn(pieceBeingDragged) {
     var squareOnRow = origin.attr("data-row");
     var squareOnCol = origin.attr("data-col");
 
-    return GameBoard.GetSquares()[squareOnCol][squareOnRow];
+    return currentGameBoard.GetSquares()[squareOnCol][squareOnRow];
 
 }
 
@@ -161,7 +97,7 @@ function getSquareTo(destination) {
     var squareOnRow = destination.attr("data-row");
     var squareOnCol = destination.attr("data-col");
 
-    return GameBoard.GetSquares()[squareOnCol][squareOnRow];
+    return currentGameBoard.GetSquares()[squareOnCol][squareOnRow];
 
 }
 
@@ -190,7 +126,134 @@ function showPieceAvailableMoves(piece) {
 
     var squareOn = getSquareOn(piece);
 
-    GameBoard.showAvailableMoves(squareOn);
+    showAvailableMoves(squareOn);
 
 }
 
+function showAvailableMoves(square) {
+
+    if (square.Piece.Color != currentGameBoard.ColorMoving)
+        return;
+
+    var legalMoves = currentGameBoard.Movement.getAllLegalMovesFromSquare(square);
+
+    currentGameBoard.LastLegalMoves = legalMoves;
+
+    for (var i = 0; i < legalMoves.length; i++) {
+        var move = legalMoves[i];
+
+        $(".square[data-row=" + move.SquareTo.Row + "][data-col=" + move.SquareTo.Col + "]").prepend("<div class='dot'></div>");
+
+    }
+
+};
+
+function updateUiForChecks() {
+
+    if (currentGameBoard.ColorInCheckMate != null) {
+
+        var kingSquare = currentGameBoard.getKingSquare(currentGameBoard.ColorInCheckMate);
+
+        checkmate(kingSquare);
+
+        Sound.checkmate();
+
+    } else if (currentGameBoard.ColorInCheck != null) {
+
+        var kingSquare = currentGameBoard.getKingSquare(currentGameBoard.ColorInCheck);
+
+        check(kingSquare);
+
+        Sound.check();
+
+    } else if (currentGameBoard.ColorInStaleMate != null) {
+
+        var kingSquare = currentGameBoard.getKingSquare(currentGameBoard.ColorInStaleMate);
+
+        stalemate(kingSquare);
+
+        Sound.stalemate();
+
+    } else
+        Sound.moveComplete(currentGameBoard);
+
+};
+
+function clearUiOfChecks() {
+
+    $(".stalemate").removeClass("stalemate");
+    $(".checkmate").removeClass("checkmate");
+    $(".check").removeClass("check");
+
+};
+
+function checkmate(square) {
+
+    $(".square[data-row=" + square.Row + "][data-col=" + square.Col + "]").addClass("checkmate");
+
+};
+
+function stalemate(square) {
+
+    $(".square[data-row=" + square.Row + "][data-col=" + square.Col + "]").addClass("stalemate");
+
+};
+
+function check(square) {
+
+    $(".square[data-row=" + square.Row + "][data-col=" + square.Col + "]").addClass("check");
+
+};
+
+function clearAllPieces() {
+
+    for (var col = 1; col <= 8; col++)
+        for (var row = 1; row <= 8; row++)
+            $(".square[data-row=" + row + "][data-col=" + col + "]").html("");
+
+};
+
+function drawPieces() {
+
+    for (var col = 1; col <= 8; col++) {
+
+        for (var row = 1; row <= 8; row++) {
+
+            var piece = currentGameBoard.Squares[col][row].Piece;
+
+            if (piece == null)
+                continue;
+
+            var square = $(".square[data-row=" + row + "][data-col=" + col + "]");
+
+            square.html(piece.getHtml());
+
+        }
+
+    }
+
+};
+
+function assignSquaresRowCol(playingColor) {
+
+    var row = playingColor == White ? 1 : 8;
+    var initCol = playingColor == White ? 1 : 8;
+    var col = initCol;
+    var modifier = playingColor == White ? 1 : -1;
+
+    for (var y = 1; y <= 8; y++) {
+
+        for (var x = 1; x <= 8; x++) {
+
+            var square = $(".square[data-x=" + x + "][data-y=" + y + "]");
+
+            square.attr("data-row", row);
+            square.attr("data-col", col);
+
+            col += modifier;
+        }
+        col = initCol;
+        row += modifier;
+    }
+
+};

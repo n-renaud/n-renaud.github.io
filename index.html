@@ -4,18 +4,22 @@
 <head>
     <script type="text/javascript" src="Scripts/jquery-3.3.1.js"></script>
     <script type="text/javascript" src="Scripts/jquery-ui.min.js"></script>
+
     <script type="text/javascript" src="Scripts/Chess/SideBar.js"></script>
-    <script type="text/javascript" src="Scripts/Chess/Common.js"></script>
-    <script type="text/javascript" src="Scripts/Chess/Movement.js"></script>
-    <script type="text/javascript" src="Scripts/Chess/Sound.js"></script>
     <script type="text/javascript" src="Scripts/Chess/Chess.js"></script>
-    <script type="text/javascript" src="Scripts/Chess/Board.js"></script>
-    <script type="text/javascript" src="Scripts/Chess/Pieces/Piece.js"></script>
-    <script type="text/javascript" src="Scripts/Chess/Pieces/Pawn.js"></script>
-    <script type="text/javascript" src="Scripts/Chess/Square.js"></script>
-    <script type="text/javascript" src="Scripts/Chess/Move.js"></script>
-    <script type="text/javascript" src="Scripts/Chess/Agents/Agent.js"></script>
-    <script type="text/javascript" src="Scripts/Chess/Agents/Albert/Albert.js"></script>
+
+    <script type="text/javascript" src="Scripts/Game/GameSetup.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Common.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Movement.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Sound.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Board.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Piece.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Square.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Move.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Agents/Agent.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Agents/Albert/Albert.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Agents/Betty/Betty.js"></script>
+
     <link rel="stylesheet" href="Content/Styles/Chess.css" />
     <link rel="stylesheet" href="Content/Styles/bootstrap.min.css" />
     <meta charset="utf-8" />
@@ -110,22 +114,36 @@
         </table>
         <div class="sideBar">
             <div class="row">
-                <div class="col-lg-12"><label class="label-control">Play against:</label></div>
+                <div class="col-lg-12"><label class="label-control">White:</label></div>
             </div>
             <div class="row paddingBottom10">
                 <div class="col-lg-12">
-                    <select class="playAgainst form-control">
+                    <select class="whiteList form-control">
                         <option value="1" selected>Self</option>
                         <option value="2">Albert</option>
                     </select>
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-12"><label class="label-control">New Game as:</label></div>
+                <div class="col-lg-12"><label class="label-control">Black:</label></div>
+            </div>
+            <div class="row paddingBottom10">
+                <div class="col-lg-12">
+                    <select class="blackList form-control">
+                        <option value="1" selected>Self</option>
+                        <option value="2">Albert</option>
+                    </select>
+                </div>
             </div>
             <div class="row">
-                <div class="col-lg-6"><button type="button" data-color="1" class="playAs btn btn-light btn-block">White</button></div>
-                <div class="col-lg-6"><button type="button" data-color="0" class="playAs btn btn-dark btn-block">Black</button></div>
+                <div class="col-lg-12"><button type="button" data-color="1" class="newGame btn btn-success btn-block">New Game</button></div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12"><label class="label-control">View:</label></div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6"><button type="button" data-color="1" class="view btn btn-light btn-block">White</button></div>
+                <div class="col-lg-6"><button type="button" data-color="0" class="view btn btn-dark btn-block">Black</button></div>
             </div>
         </div>
     </div>
