@@ -132,6 +132,12 @@ function showPieceAvailableMoves(piece) {
 
 function showAvailableMoves(square) {
 
+    if (currentGameBoard.ColorMoving == White && currentGameBoard.White != Self)
+        return;
+
+    if (currentGameBoard.ColorMoving == Black && currentGameBoard.Black != Self)
+        return;
+
     if (square.Piece.Color != currentGameBoard.ColorMoving)
         return;
 
