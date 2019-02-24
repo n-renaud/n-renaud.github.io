@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <script type="text/javascript" src="Scripts/jquery-3.3.1.js"></script>
+    <script type="text/javascript" src="Scripts/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="Scripts/War/SideBar.js"></script>
+    <script type="text/javascript" src="Scripts/War/War.js"></script>
+
+    <script type="text/javascript" src="Scripts/Game/GameSetup.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Common.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Movement.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Sound.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Board.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Piece.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Square.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Move.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Agents/Agent.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Agents/Albert/Albert.js"></script>
+    <script type="text/javascript" src="Scripts/Game/Agents/Betty/Betty.js"></script>
+
+    <link rel="stylesheet" href="Content/Styles/Chess.css" />
+    <link rel="stylesheet" href="Content/Styles/bootstrap.min.css" />
+    <meta charset="utf-8" />
+    <title>War</title>
+</head>
+<body>
+    <audio style="display:none;">
+        <source class="soundSrc" src="" type="audio/wav">
+    </audio>
+    <div class="wrapper">
+        <div class="warBoard">
+            <div class="row warBanner">
+                <div class="col-lg-4">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <label class="label-control">White:</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select class="whiteAgent form-control">
+                                <option value="2" selected>Albert</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-2 vsText">
+                    VS
+                </div>
+                <div class="col-lg-4">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <label class="label-control">Black:</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select class="blackAgent form-control">
+                                <option value="2" selected>Albert</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                    <button type="button" class="fight btn btn-danger btn-block">Fight</button>
+                </div>
+            </div>
+            <div class="row ">
+                <div class="col-lg-12 fightResults">
+
+                </div>
+            </div>
+        </div>
+        <div class="sideBar">
+            <div class="row bottomRow">
+                <div class="col-lg-12"><button type="button" data-color="1" class="goToChess btn btn-info btn-block">Chess</button></div>
+            </div>
+        </div>
+    </div>
+    <img class="chessPiece clone">
+</body>
+</html>

@@ -19,6 +19,10 @@ function updateColorViewing(colorViewing) {
     refreshBoard();
 }
 
+function updateThinkingTime(time) {
+    ThinkingTime = time;
+}
+
 function startNewGame(newBoard) {
 
     currentGameBoard = newBoard;
@@ -74,10 +78,15 @@ function resolveMove() {
 
     updateUiForChecks();
 
-    setTimeout(function () {
-        if (currentGameBoard.tryPerformNextMove())
-            resolveMove();
-    }, ThinkingTime);    
+    if (currentGameBoard.GameResult == null)
+        setTimeout(function () {
+            if (currentGameBoard.tryPerformNextMove())
+                resolveMove();
+        }, ThinkingTime);
+    else
+        setTimeout(function () { // timeout to allow the board to redraw before alert is posted
+            alert(currentGameBoard.GameResult);
+        }, 50);
 
 }
 

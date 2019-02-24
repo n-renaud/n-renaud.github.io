@@ -8,6 +8,7 @@ function Board() {
     this.White = null;
     this.Black = null;
 
+    this.GameResult = null;
     this.ColorInCheck = null;
     this.ColorInCheckMate = null;
     this.ColorInStaleMate = null;
@@ -24,13 +25,31 @@ function Board() {
 
 }
 
+Board.prototype.gameEndChecks = function () {
+
+    if (this.ColorInCheckMate != null)
+        this.GameResult = "Checkmate: " + getColorText(this.ColorInCheckMate == White ? Black : White) + " wins";
+
+    if (this.ColorInStaleMate != null)
+        this.GameResult = "Stalemate: " + getColorText(this.ColorMoving) + ". Draw";
+
+    if (this.getAllSquaresWithPieces().length == 2)
+        this.GameResult = "King Draw";
+
+};
+
 Board.prototype.tryPerformNextMove = function () {
+
+    if (this.GameResult != null)
+        return false;
 
     if (this.ColorMoving == White && this.White != Self) {
         this.White.move();
+        this.gameEndChecks();
         return true;
     } else if (this.ColorMoving == Black && this.Black != Self) {
         this.Black.move();
+        this.gameEndChecks();
         return true;
     }
 
@@ -143,6 +162,8 @@ Board.prototype.tryPerformMove = function (squareOn, squareTo) {
 
     if (direction != null && direction.onMove != null)
         direction.onMove();
+    
+    this.gameEndChecks();
 
     return true;
 

@@ -123,3 +123,7 @@
 .fight {
     margin-top: 20px;
 }
+
+.fightResults .row {
+    padding: 10px;
+}

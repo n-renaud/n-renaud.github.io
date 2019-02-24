@@ -16,6 +16,10 @@ function initSideBar() {
         updateColorViewing(view);
     });
 
+    $('.thinkingTime').on('change', function () {
+        updateThinkingTime(+$(this).val());
+    });
+
     $(".goToWar").on("click", function () {
         window.location = "War.html";
     });

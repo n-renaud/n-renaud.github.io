@@ -2,7 +2,7 @@
 Self = 1, AlbertId = 2, BettyId = 3;
 ThinkingTime = 500;
 A = 1, B = 2, C = 3, D = 4, E = 5, F = 6, G = 7, H = 8;
-Black = 0, White = 1;
+Draw = -1, Black = 0, White = 1;
 Pieces = { Pawn : 0, Knight : 1, Bishop : 2, Rook : 3, King : 4, Queen : 5 };
 PiecesFolder = "Content/Images";
 
