@@ -72,11 +72,54 @@ function initTileDroppable() {
 
 }
 
+function scrollToBottomOfDiv(div) {
+    var scrollHeight;
+
+    if (div.length > 0)
+        scrollHeight = div[0].scrollHeight;
+    else
+        scrollHeight = div.scrollHeight;
+
+    $(div).scrollTop(scrollHeight);
+}
+
+function updatePGN() {
+
+    var newPGN = "";
+
+    for (var i = 0; i < currentGameBoard.PGN.length; i++) {
+
+        var move = currentGameBoard.PGN[i];
+
+        var moveRow = "<div class='row'><div class='col-sm-2'>" + (i + 1) + ". </div>";
+
+        var whitePly = move[0];
+        var blackPly = move[1] || "";
+
+        moveRow += "<div class='col-sm-3 ply'>" + whitePly + "</div>";
+        moveRow += "<div class='col-sm-3 ply'>" + blackPly + "</div>"
+
+        moveRow += "</div>";
+
+        newPGN += moveRow;
+
+    }
+
+    var pgn = $(".PGN");
+
+    pgn.html(newPGN);
+
+    scrollToBottomOfDiv($(".PGNrow"));
+
+}
+
 function resolveMove() {
 
     refreshBoard();
 
     updateUiForChecks();
+
+    updatePGN();
 
     if (currentGameBoard.GameResult == null)
         setTimeout(function () {
@@ -86,7 +129,7 @@ function resolveMove() {
     else
         setTimeout(function () { // timeout to allow the board to redraw before alert is posted
             alert(currentGameBoard.GameResult);
-        }, 50);
+        }, 100);
 
 }
 

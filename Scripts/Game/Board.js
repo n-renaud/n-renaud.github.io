@@ -4,6 +4,7 @@ function Board() {
     this.Movement = new Movement(this);
     this.Squares = [9];
     this.HypotheticalSquares = [];
+    this.PGN = [];
     this.LastLegalMoves = null;
     this.White = null;
     this.Black = null;
@@ -172,6 +173,8 @@ Board.prototype.tryPerformMove = function (squareOn, squareTo) {
 
 Board.prototype.performMove = function (squareOn, squareTo) {
 
+    addPly(this, squareOn, squareTo);
+
     this.castlingChecks(squareOn, squareTo);
 
     this.movePieceTo(squareOn, squareTo);
@@ -202,13 +205,18 @@ Board.prototype.checkForChecks = function () {
 
     if (this.Movement.isSquareTargetedByEnemy(defenderKingSquare, allAttackerMoves)) {
 
-        if (this.Movement.getAllLegalMovesForColor(this.ColorMoving).length == 0)
+        if (this.Movement.getAllLegalMovesForColor(this.ColorMoving).length == 0) {
             this.ColorInCheckMate = this.ColorMoving;
-        else
+            checkmateCurrentPly(this);
+        } else {
             this.ColorInCheck = this.ColorMoving;
+            checkCurrentPly(this);
+        }
 
-    } else if (this.Movement.getAllLegalMovesForColor(this.ColorMoving).length == 0)
+    } else if (this.Movement.getAllLegalMovesForColor(this.ColorMoving).length == 0) {
         this.ColorInStaleMate = this.ColorMoving;
+        stalemateCurrentPly(this);
+    }
 
 };
 

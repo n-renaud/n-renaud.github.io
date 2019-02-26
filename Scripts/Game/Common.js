@@ -70,27 +70,61 @@ function getPieceText (piece) {
 
 };
 
-function getColText (col) {
+function getPieceLetterText (piece) {
 
-    if (col == A)
-        return "A";
-    else if (col == B)
+    if (piece == Pieces.Pawn)
+        return "P";
+    else if (piece == Pieces.Rook)
+        return "R";
+    else if (piece == Pieces.Bishop)
         return "B";
-    else if (col == C)
-        return "C";
-    else if (col == D)
-        return "D";
-    else if (col == E)
-        return "E";
-    else if (col == F)
-        return "F";
-    else if (col == G)
-        return "G";
-    else if (col == H)
-        return "H";
+    else if (piece == Pieces.Knight)
+        return "N";
+    else if (piece == Pieces.King)
+        return "K";
+    else if (piece == Pieces.Queen)
+        return "Q";
 
 };
 
-function getSquareText(row, col) {
-    return getColText(col) + row;
+function getPGNPieceLetterText (piece) {
+
+    if (piece == Pieces.Rook)
+        return "R";
+    else if (piece == Pieces.Bishop)
+        return "B";
+    else if (piece == Pieces.Knight)
+        return "N";
+    else if (piece == Pieces.King)
+        return "K";
+    else if (piece == Pieces.Queen)
+        return "Q";
+    else
+        return "";
+
+};
+
+function getColText (col) {
+
+    if (col == A)
+        return "a";
+    else if (col == B)
+        return "b";
+    else if (col == C)
+        return "c";
+    else if (col == D)
+        return "d";
+    else if (col == E)
+        return "e";
+    else if (col == F)
+        return "f";
+    else if (col == G)
+        return "g";
+    else if (col == H)
+        return "h";
+
+};
+
+function getSquareText(square) {
+    return getColText(square.Col) + square.Row;
 }

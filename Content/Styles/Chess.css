@@ -127,3 +127,21 @@
 .fightResults .row {
     padding: 10px;
 }
+
+.PGNrow {
+    margin: 10px 0px !important;
+    max-height: 50%;
+    min-height: 50%;
+    overflow: overlay;
+    border: 2px solid black;
+    cursor: default;
+}
+
+.col-lg-12.PGN div {
+    padding: 0 !important;
+    text-align: center;
+}
+
+.col-lg-12.PGN .ply:hover {
+    background-color: #dee3e6;
+}
