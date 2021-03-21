@@ -1,18 +1,27 @@
 ﻿
-Self = 1, AlbertId = 2, BettyId = 3;
-ThinkingTime = 500;
-A = 1, B = 2, C = 3, D = 4, E = 5, F = 6, G = 7, H = 8;
-Draw = -1, Black = 0, White = 1;
-Pieces = { Pawn : 0, Knight : 1, Bishop : 2, Rook : 3, King : 4, Queen : 5 };
-PiecesFolder = "Content/Images";
+var Self = 1, AlbertId = 2, BettyId = 3, CarlosId = 4;
+var ThinkingTime = 500;
+var A = 1, B = 2, C = 3, D = 4, E = 5, F = 6, G = 7, H = 8;
+var Draw = -1, Black = 0, White = 1;
+
+var Pieces = {
+    Pawn: { Id: 0, Value: 1 },
+    Knight: { Id: 1, Value: 3 },
+    Bishop: { Id: 2, Value: 3 },
+    Rook: { Id: 3, Value: 5 },
+    King: { Id: 4, Value: 4 },
+    Queen: { Id: 5, Value: 9 }
+};
+
+var PiecesFolder = "Content/Images";
 
 Array.prototype.pushRange = function (rangeToPush) {
 
     if (this == null || rangeToPush == null)
         return;
 
-    for (i = 0; i < rangeToPush.length; i++) 
-        this.push(rangeToPush[i]);    
+    for (i = 0; i < rangeToPush.length; i++)
+        this.push(rangeToPush[i]);
 
 }
 
@@ -53,58 +62,66 @@ function getColorText(color) {
 
 };
 
-function getPieceText (piece) {
+function isBlack(color) {
+    return color == Black;
+};
 
-    if (piece == Pieces.Pawn)
+function isWhite(color) {
+    return color == White;
+};
+
+function getPieceText(piece) {
+
+    if (piece == Pieces.Pawn.Id)
         return "Pawn";
-    else if (piece == Pieces.Rook)
+    else if (piece == Pieces.Rook.Id)
         return "Rook";
-    else if (piece == Pieces.Bishop)
+    else if (piece == Pieces.Bishop.Id)
         return "Bishop";
-    else if (piece == Pieces.Knight)
+    else if (piece == Pieces.Knight.Id)
         return "Knight";
-    else if (piece == Pieces.King)
+    else if (piece == Pieces.King.Id)
         return "King";
-    else if (piece == Pieces.Queen)
+    else if (piece == Pieces.Queen.Id)
         return "Queen";
 
 };
 
-function getPieceLetterText (piece) {
+function getPieceLetterText(piece) {
 
-    if (piece == Pieces.Pawn)
+    if (piece == Pieces.Pawn.Id)
         return "P";
-    else if (piece == Pieces.Rook)
+    else if (piece == Pieces.Rook.Id)
         return "R";
-    else if (piece == Pieces.Bishop)
+    else if (piece == Pieces.Bishop.Id)
         return "B";
-    else if (piece == Pieces.Knight)
+    else if (piece == Pieces.Knight.Id)
         return "N";
-    else if (piece == Pieces.King)
+    else if (piece == Pieces.King.Id)
         return "K";
-    else if (piece == Pieces.Queen)
+    else if (piece == Pieces.Queen.Id)
         return "Q";
 
 };
 
-function getPGNPieceLetterText (piece) {
+function getPGNPieceLetterText(piece) {
 
-    if (piece == Pieces.Rook)
+    if (piece == Pieces.Rook.Id)
         return "R";
-    else if (piece == Pieces.Bishop)
+    else if (piece == Pieces.Bishop.Id)
         return "B";
-    else if (piece == Pieces.Knight)
+    else if (piece == Pieces.Knight.Id)
         return "N";
-    else if (piece == Pieces.King)
+    else if (piece == Pieces.King.Id)
         return "K";
-    else if (piece == Pieces.Queen)
+    else if (piece == Pieces.Queen.Id)
         return "Q";
     else
         return "";
 
 };
 
-function getColText (col) {
+function getColText(col) {
 
     if (col == A)
         return "a";

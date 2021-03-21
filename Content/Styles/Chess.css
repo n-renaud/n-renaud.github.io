@@ -31,12 +31,13 @@
 }
 
 .wrapper {
-    width: 55%;
-    height: 90vh;
-    position: relative;
-    margin-left: auto;
-    margin-top: 2.5%;
-    margin-right: auto;
+    width: 100vh;
+    height: 80vh;
+    position: absolute;
+    top: 15%;
+    left: 25%;
+    margin-top: -50px;
+    margin-left: -50px;
 }
 
 .square {
@@ -44,14 +45,25 @@
 }
 
 .chessBoard, .warBoard {
-    height: 100%;
+    height: inherit;
     float: left;
     width: 80%;
 }
 
+	.chessBoard tr {
+		height: 12.5%;
+		width: inherit;
+	}
+
 	.chessBoard td {
 		vertical-align: top;
 		height: 12.5%;
+		width: 12.5%;
+	}
+
+	.chessBoard td {
+		vertical-align: top;
+		height: inherit;
 		width: 12.5%;
 	}
 
@@ -79,6 +91,10 @@
     margin-left: 35.5%;
     position: absolute;
     z-index: 100;
+}
+
+.defense {
+    background-color: #96d496;
 }
 
 .whiteTile .dot {

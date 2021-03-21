@@ -5,11 +5,11 @@ function Movement(board) {
 
     this.GameBoard = board;
 
-    this[Pieces.Rook] = [{ x: -7 }, { x: 7 }, { y: -7 }, { y: 7 }];
+    this[Pieces.Rook.Id] = [{ x: -7 }, { x: 7 }, { y: -7 }, { y: 7 }];
 
-    this[Pieces.Bishop] = [{ x: -7, y: -7 }, { x: -7, y: 7 }, { x: 7, y: -7 }, { x: 7, y: 7 }];
+    this[Pieces.Bishop.Id] = [{ x: -7, y: -7 }, { x: -7, y: 7 }, { x: 7, y: -7 }, { x: 7, y: 7 }];
 
-    this[Pieces.Knight] = [
+    this[Pieces.Knight.Id] = [
         { x: -2, y: 1 },
         { x: -1, y: 2 },
         { x: 1, y: 2 },
@@ -20,10 +20,10 @@ function Movement(board) {
         { x: 2, y: -1 }
     ];
 
-    this[Pieces.Queen] = [{ x: -7 }, { x: 7 }, { y: -7 }, { y: 7 }, { x: -7, y: -7 }, { x: -7, y: 7 }, { x: 7, y: -7 }, { x: 7, y: 7 }];
+    this[Pieces.Queen.Id] = [{ x: -7 }, { x: 7 }, { y: -7 }, { y: 7 }, { x: -7, y: -7 }, { x: -7, y: 7 }, { x: 7, y: -7 }, { x: 7, y: 7 }];
 
     //implement castling
-    this[Pieces.King] = [{ x: -1 }, { x: 1 }, { y: -1 }, { y: 1 }, { x: -1, y: -1 }, { x: -1, y: 1 }, { x: 1, y: -1 }, { x: 1, y: 1 },
+    this[Pieces.King.Id] = [{ x: -1 }, { x: 1 }, { y: -1 }, { y: 1 }, { x: -1, y: -1 }, { x: -1, y: 1 }, { x: 1, y: -1 }, { x: 1, y: 1 },
     {
         x: 2,
         condition: function (squareOn, color) {
@@ -96,7 +96,7 @@ function Movement(board) {
     }];
 
     //implement en passant
-    this[Pieces.Pawn] = [
+    this[Pieces.Pawn.Id] = [
         { y: 1, cantKill: true, condition: function (squareOn, color) { return color == White } },
         { y: 2, cantKill: true, condition: function (squareOn, color) { return squareOn.Row == 2 && color == White } },
         { y: 1, x: -1, mustKill: true, condition: function (squareOn, color) { return color == White } },
@@ -147,7 +147,7 @@ Movement.prototype.getDirection = function (squareOn, squareTo) {
     var x = squareTo.Col - squareOn.Col;
     var y = squareTo.Row - squareOn.Row;
 
-    var pieceDirections = this[squareOn.Piece.Piece];
+    var pieceDirections = this[squareOn.Piece.Piece.Id];
 
     var directionForMove = null;
 
@@ -197,7 +197,7 @@ Movement.prototype.getAllLegalMovesFromSquare = function (squareOn) {
     if (squareOn == null || squareOn.Piece == null)
         return legalMoves;
 
-    var directions = this[squareOn.Piece.Piece];
+    var directions = this[squareOn.Piece.Piece.Id];
 
     for (var i = 0; i < directions.length; i++) {
 
@@ -218,6 +218,48 @@ Movement.prototype.getAllLegalMovesFromSquare = function (squareOn) {
 
 };
 
+Movement.prototype.getAllLegalDefenseMovesFromSquare = function (squareOn) {
+
+    var legalMoves = [];
+
+    if (squareOn == null || squareOn.Piece == null)
+        return legalMoves;
+
+    var directions = this[squareOn.Piece.Piece.Id];
+
+    for (var i = 0; i < directions.length; i++) {
+
+        var direction = directions[i];
+
+        if (direction.cantKill || (direction.condition != null && !direction.condition(squareOn, squareOn.Piece.Color)))
+            continue;
+
+        var legalSquares = this.getLegalDefensesFromDirection(squareOn, direction);
+
+        for (var j = 0; j < legalSquares.length; j++)
+            if (this.isMoveUnique(legalSquares[j], legalMoves))
+                legalMoves.push(new Move(squareOn, legalSquares[j], direction));
+
+    }
+
+    return legalMoves;
+
+};
+
+Movement.prototype.getAllSquaresDefendingSquare = function (board, squareToBeDefended, color) {
+
+    var defendingSquares = [];
+
+    if (squareToBeDefended == null)
+        return defendingSquares;
+
+    if (board.DefenseMatrix.length == 0)
+        board.setupDefenseMatrix();
+
+    return board.DefenseMatrix[squareToBeDefended.Col][squareToBeDefended.Row];
+
+};
+
 Movement.prototype.getLegalSquaresFromDirection = function (squareOn, direction) {
 
     var xDir = direction.x != null ? direction.x : 0;
@@ -229,7 +271,7 @@ Movement.prototype.getLegalSquaresFromDirection = function (squareOn, direction)
 
         var squareTo = this.getSingleSquare(squareOn, xDir, yDir);
 
-        var legality =  this.isSquareLegalToMoveTo(squareOn, squareTo, direction);
+        var legality = this.isSquareLegalToMoveTo(squareOn, squareTo, direction);
 
         if (legality == true)
             legalSquaresInDirection.push(squareTo);
@@ -238,6 +280,31 @@ Movement.prototype.getLegalSquaresFromDirection = function (squareOn, direction)
 
     } else
         legalSquaresInDirection.pushRange(this.getLegalSquaresInLine(squareOn, direction));
+
+    return legalSquaresInDirection;
+
+};
+
+Movement.prototype.getLegalDefensesFromDirection = function (squareOn, direction) {
+
+    var xDir = direction.x != null ? direction.x : 0;
+    var yDir = direction.y != null ? direction.y : 0;
+
+    var legalSquaresInDirection = [];
+
+    if ((xDir != 0 && yDir != 0 && Math.abs(xDir) != Math.abs(yDir)) || (Math.abs(xDir) == 1 || Math.abs(yDir) == 1)) {
+
+        var squareTo = this.getSingleSquare(squareOn, xDir, yDir);
+
+        var legality = this.isSquareLegalToDefend(squareOn, squareTo, direction);
+
+        if (legality == true)
+            legalSquaresInDirection.push(squareTo);
+        else if (legality.kill == true)
+            legalSquaresInDirection.push(squareTo);
+
+    } else
+        legalSquaresInDirection.pushRange(this.getLegalDefenseSquaresInLine(squareOn, direction));
 
     return legalSquaresInDirection;
 
@@ -260,7 +327,7 @@ Movement.prototype.isSquareOccupied = function (squareTo) {
 
 Movement.prototype.getAllLegalMovesForColor = function (color) {
 
-    var legalTargets = []
+    var legalTargets = [];
 
     var allSquaresWithPieces = this.GameBoard.getSquaresWithPieces(color);
 
@@ -288,25 +355,29 @@ Movement.prototype.getAllMyLegalMoves = function () {
 
 };
 
-Movement.prototype.isSquareTargetedByEnemy = function (square, allEnemyMoves) {
+Movement.prototype.getEnemySquaresTargettingSquare = function (square, allEnemyMoves) {
 
-    var isSquareTargeted = false;
+    var squaresTargetting = [];
 
     if (square == null)
-        return false;
+        return squaresTargetting;
 
     for (var i = 0; i < allEnemyMoves.length; i++) {
 
         var enemyMove = allEnemyMoves[i];
 
-        if (enemyMove.SquareTo.Row == square.Row && enemyMove.SquareTo.Col == square.Col && enemyMove.Direction.cantKill != true) {
-            isSquareTargeted = true;
-            break;
-        }
+        if (enemyMove.SquareTo.Row == square.Row && enemyMove.SquareTo.Col == square.Col && enemyMove.Direction.cantKill != true)
+            squaresTargetting.push(enemyMove.SquareOn);
 
     }
 
-    return isSquareTargeted;
+    return squaresTargetting;
+
+};
+
+Movement.prototype.isSquareTargetedByEnemy = function (square, allEnemyMoves) {
+
+    return this.getEnemySquaresTargettingSquare(square, allEnemyMoves).length > 0;
 
 };
 
@@ -320,7 +391,22 @@ Movement.prototype.isSquareLegalToMoveTo = function (squareOn, squareTo, directi
     else
         return this.canPieceMoveToOccupiedSquare(squareOn, squareTo, direction);
 
-}
+};
+
+Movement.prototype.isSquareLegalToDefend = function (squareOn, squareTo, direction) {
+
+    if (squareOn == null || squareTo == null || direction == null)
+        return false;
+
+    if (squareTo.Equals(squareOn))
+        return false;
+
+    if (squareTo.Piece == null)
+        return this.canPieceDefendEmptySquare(squareOn, squareTo, direction);
+    else
+        return this.canPieceDefendSquare(squareOn, squareTo, direction);
+
+};
 
 Movement.prototype.canPieceMoveToEmptySquare = function (squareOn, squareTo, direction) {
 
@@ -334,9 +420,36 @@ Movement.prototype.canPieceMoveToEmptySquare = function (squareOn, squareTo, dir
 
 }
 
+Movement.prototype.canPieceDefendEmptySquare = function (squareOn, squareTo, direction) {
+
+    if (direction != null && direction.mustKill == true)
+        return true;
+
+    if (this.wouldKingBeSafeAfterLegalMove(squareOn, squareTo))
+        return true;
+    else
+        return { continue: true };
+
+}
+
 Movement.prototype.canPieceMoveToOccupiedSquare = function (squareOn, squareTo, direction) {
 
     if (squareOn.Piece.Color == squareTo.Piece.Color)
+        return false;
+
+    if (direction != null && direction.cantKill == true)
+        return false;
+
+    if (this.wouldKingBeSafeAfterLegalMove(squareOn, squareTo))
+        return { kill: true }
+
+    return false;
+
+}
+
+Movement.prototype.canPieceDefendSquare = function (squareOn, squareTo, direction) {
+
+    if (squareOn.Piece.Color != squareTo.Piece.Color)
         return false;
 
     if (direction != null && direction.cantKill == true)
@@ -409,6 +522,53 @@ Movement.prototype.getLegalSquaresInLine = function (squareOn, direction) {
         var squareTo = this.GameBoard.GetSquares()[lineX][lineY];
 
         var legality = this.isSquareLegalToMoveTo(squareOn, squareTo, direction);
+
+        if (legality == true)
+            squaresInLine.push(squareTo);
+        else if (legality.kill == true) {
+            squaresInLine.push(squareTo);
+            break;
+        }
+        else if (legality.continue == true)
+            continue;
+        else if (legality == false)
+            break;
+
+    }
+
+    return squaresInLine;
+
+};
+
+Movement.prototype.getLegalDefenseSquaresInLine = function (squareOn, direction) {
+
+    var distanceCheck = direction.x != null ? direction.x : direction.y;
+
+    var distance = Math.abs(distanceCheck);
+    var squaresInLine = []
+
+    var xDir = direction.x != null ? direction.x : 0;
+    var yDir = direction.y != null ? direction.y : 0;
+
+    var onX = squareOn.Col;
+    var xSign = Math.sign(xDir);
+    var onY = squareOn.Row;
+    var ySign = Math.sign(yDir);
+
+    for (var i = 1; i <= distance; i++) {
+
+        var lineX = onX + (i * xSign);
+        var lineY = onY + (i * ySign);
+
+        if (!isInBoard(lineX, lineY))
+            break;
+
+        var squareTo = this.GameBoard.GetSquares()[lineX][lineY];
+
+        if (squareTo.Equals(squareOn))
+            return false;
+
+        var legality = this.isSquareLegalToDefend(squareOn, squareTo, direction);
 
         if (legality == true)
             squaresInLine.push(squareTo);

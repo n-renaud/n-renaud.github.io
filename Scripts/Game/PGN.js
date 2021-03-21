@@ -31,7 +31,7 @@ function getPly(squareOn, squareTo) {
 
     var ply = "";
 
-    ply += getPGNPieceLetterText(squareOn.Piece.Piece);
+    ply += getPGNPieceLetterText(squareOn.Piece.Piece.Id);
 
     if (squareTo.Piece != null)
         ply += "x";

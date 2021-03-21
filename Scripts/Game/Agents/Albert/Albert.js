@@ -1,4 +1,5 @@
-﻿
+﻿//Plays random moves
+
 function Albert(colorPlaying, board) {
 
     Agent.call(this, AlbertId, colorPlaying, board);
@@ -14,10 +15,6 @@ Albert.prototype.agentMove = function () {
     if (moves.length == 0)
         return;
 
-    var randomMove = getRandomInt(0, moves.length - 1);
-
-    var moveToPerform = moves[randomMove];
-
-    this.GameBoard.performMove(moveToPerform.SquareOn, moveToPerform.SquareTo);
+    this.executeRandomMove(moves);
 
 };

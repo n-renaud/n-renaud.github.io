@@ -2,7 +2,7 @@
 function initSideBar() {
 
     $(".goToChess").on("click", function () {
-        window.location = "index.html";
+        window.location = "Chess.html";
     });
 
     $(".fight").on("click", function () {

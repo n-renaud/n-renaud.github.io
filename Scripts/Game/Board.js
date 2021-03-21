@@ -1,41 +1,82 @@
 ﻿
-function Board() {
+function Board(copy) {
 
     this.Movement = new Movement(this);
-    this.Squares = [9];
     this.HypotheticalSquares = [];
+    this.Squares = [];
     this.PGN = [];
-    this.LastLegalMoves = null;
-    this.White = null;
-    this.Black = null;
+    this.DefenseMatrix = [];
 
-    this.GameResult = null;
-    this.ColorInCheck = null;
-    this.ColorInCheckMate = null;
-    this.ColorInStaleMate = null;
-    this.ColorMoving = White;
-    this.ColorViewing = White;
+    this.LastLegalMoves = copy?.LastLegalMoves ?? null;
+    this.White = copy?.White ?? null;
+    this.Black = copy?.Black ?? null;
+    this.WhiteScore = copy?.WhiteScore ?? null;
+    this.BlackScore = copy?.BlackScore ?? null;
 
-    this.WhiteLeftCastling = true;
-    this.WhiteRightCastling = true;
-    this.BlackLeftCastling = true;
-    this.BlackRightCastling = true;
+    this.GameResult = copy?.GameResult ?? null;
+    this.ColorInCheck = copy?.ColorInCheck ?? null;
+    this.ColorInCheckMate = copy?.ColorInCheckMate ?? null;
+    this.ColorInStaleMate = copy?.ColorInStaleMate ?? null;
+    this.ColorMoving = copy?.ColorMoving ?? White;
+    this.ColorViewing = copy?.ColorViewing ?? White;
 
-    this.initSquaresArrays();
-    this.setPiecesToNewGame();
+    this.WhiteLeftCastling = copy?.WhiteLeftCastling ?? true;
+    this.WhiteRightCastling = copy?.WhiteRightCastling ?? true;
+    this.BlackLeftCastling = copy?.BlackLeftCastling ?? true;
+    this.BlackRightCastling = copy?.BlackRightCastling ?? true;
+
+    this.MovesSincePawnOrTake = copy?.MovesSincePawnOrTake ?? 0;
+
+    if (copy == null) {
+
+        this.initSquaresArrays();
+        this.setPiecesToNewGame();
+
+    } else {
+
+        for (var i = 1; i < copy.Squares.length; i++) {
+            var squares = copy.Squares[i];
+            this.Squares[i] = [];
+            for (var j = 1; j < squares.length; j++)
+                this.Squares[i][j] = copy.Squares[i][j].copy();
+        }
+
+        this.PGN = JSON.parse(JSON.stringify(copy.PGN));
+
+    }
+
+}
+
+Board.prototype.Copy = function () {
+
+    return new Board(this);
+
+}
+
+Board.prototype.GetColorScorePercent = function (color) {
+
+    var total = this.WhiteScore + this.BlackScore;
+
+    if (color == White)
+        return (this.WhiteScore / total) * 100;
+    if (color == Black)
+        return (this.BlackScore / total) * 100;
 
 }
 
 Board.prototype.gameEndChecks = function () {
 
+    if (this.MovesSincePawnOrTake >= 50)
+        this.GameResult = "Draw: 50 moves";
+
     if (this.ColorInCheckMate != null)
         this.GameResult = "Checkmate: " + getColorText(this.ColorInCheckMate == White ? Black : White) + " wins";
 
     if (this.ColorInStaleMate != null)
-        this.GameResult = "Stalemate: " + getColorText(this.ColorMoving) + ". Draw";
+        this.GameResult = "Draw: " + getColorText(this.ColorMoving) + " cannot move";
 
     if (this.getAllSquaresWithPieces().length == 2)
-        this.GameResult = "King Draw";
+        this.GameResult = "Draw: Kings";
 
 };
 
@@ -69,18 +110,18 @@ Board.prototype.castlingChecks = function (squareMoving, squareTo) {
 
 Board.prototype.whiteCastlingChecks = function (squareMoving, squareTo) {
 
-    if (squareMoving.Piece.Piece == Pieces.King) {
+    if (squareMoving.Piece.Piece.Id == Pieces.King.Id) {
         this.WhiteLeftCastling = false;
         this.WhiteRightCastling = false;
     }
 
-    if (squareMoving.Piece.Piece == Pieces.Rook)
+    if (squareMoving.Piece.Piece.Id == Pieces.Rook.Id)
         if (squareMoving.Col == A)
             this.WhiteLeftCastling = false;
         else if (squareMoving.Col == H)
             this.WhiteRightCastling = false;
 
-    if (squareTo.Piece != null && squareTo.Piece.Piece == Pieces.Rook)
+    if (squareTo.Piece != null && squareTo.Piece.Piece.Id == Pieces.Rook.Id)
         if (squareTo.Col == A)
             this.BlackLeftCastling = false;
         else if (squareTo.Col == H)
@@ -92,7 +133,7 @@ Board.prototype.pawnPromotionCheck = function (square) {
 
     var piece = square.Piece;
 
-    if (piece.Piece != Pieces.Pawn)
+    if (piece.Piece.Id != Pieces.Pawn.Id)
         return;
 
     if (piece.Color == White && square.Row == 8)
@@ -104,18 +145,18 @@ Board.prototype.pawnPromotionCheck = function (square) {
 
 Board.prototype.blackCastlingChecks = function (squareMoving, squareTo) {
 
-    if (squareMoving.Piece.Piece == Pieces.King) {
+    if (squareMoving.Piece.Piece.Id == Pieces.King.Id) {
         this.BlackLeftCastling = false;
         this.BlackRightCastling = false;
     }
 
-    if (squareMoving.Piece.Piece == Pieces.Rook)
+    if (squareMoving.Piece.Piece.Id == Pieces.Rook.Id)
         if (squareMoving.Col == A)
             this.BlackLeftCastling = false;
         else if (squareMoving.Col == H)
             this.BlackRightCastling = false;
 
-    if (squareTo.Piece != null && squareTo.Piece.Piece == Pieces.Rook)
+    if (squareTo.Piece != null && squareTo.Piece.Piece.Id == Pieces.Rook.Id)
         if (squareTo.Col == A)
             this.WhiteLeftCastling = false;
         else if (squareTo.Col == H)
@@ -163,7 +204,7 @@ Board.prototype.tryPerformMove = function (squareOn, squareTo) {
 
     if (direction != null && direction.onMove != null)
         direction.onMove();
-    
+
     this.gameEndChecks();
 
     return true;
@@ -175,6 +216,8 @@ Board.prototype.performMove = function (squareOn, squareTo) {
 
     addPly(this, squareOn, squareTo);
 
+    this.pawnOrTakeCheck(squareOn, squareTo);
+
     this.castlingChecks(squareOn, squareTo);
 
     this.movePieceTo(squareOn, squareTo);
@@ -184,6 +227,16 @@ Board.prototype.performMove = function (squareOn, squareTo) {
     this.resolveMove();
 
     this.checkForChecks();
+
+};
+
+Board.prototype.pawnOrTakeCheck = function (squareOn, squareTo) {
+
+    if (squareOn.Piece.Piece.Id == Pieces.Pawn.Id ||
+        squareTo.Piece != null)
+        this.MovesSincePawnOrTake = 0;
+    else
+        this.MovesSincePawnOrTake++;
 
 };
 
@@ -231,7 +284,7 @@ Board.prototype.getKingSquare = function (color) {
             if (square.Piece == null)
                 continue;
 
-            if (square.Piece.Color == color && square.Piece.Piece == Pieces.King)
+            if (square.Piece.Color == color && square.Piece.Piece.Id == Pieces.King.Id)
                 return square;
 
         }
@@ -242,7 +295,7 @@ Board.prototype.getKingSquare = function (color) {
 Board.prototype.initSquaresArrays = function () {
 
     for (var col = 1; col <= 8; col++) {
-        this.Squares[col] = [9];
+        this.Squares[col] = [];
         for (var row = 1; row <= 8; row++) {
             this.Squares[col][row] = new Square(row, col);
         }
@@ -250,9 +303,20 @@ Board.prototype.initSquaresArrays = function () {
 
 };
 
+Board.prototype.initDefenseMatrix = function () {
+
+    for (var col = 1; col <= 8; col++) {
+        this.DefenseMatrix[col] = [];
+        for (var row = 1; row <= 8; row++) {
+            this.DefenseMatrix[col][row] = [];
+        }
+    }
+
+};
+
 Board.prototype.getSquaresWithPieces = function (color) {
 
-    var pieces = [];
+    var squares = [];
 
     for (var col = 1; col <= 8; col++) {
 
@@ -261,13 +325,25 @@ Board.prototype.getSquaresWithPieces = function (color) {
             var square = this.GetSquares()[col][row];
 
             if (square.Piece != null && square.Piece.Color == color)
-                pieces.push(square);
+                squares.push(square);
 
         }
 
     }
 
-    return pieces;
+    return squares;
+
+};
+
+Board.prototype.getAllSquares = function () {
+
+    var squares = [];
+
+    for (var col = 1; col <= 8; col++)
+        for (var row = 1; row <= 8; row++)
+            squares.push(this.GetSquares()[col][row]);
+
+    return squares;
 
 };
 
@@ -276,6 +352,30 @@ Board.prototype.getSquare = function (row, col) {
     return this.GetSquares()[col][row];
 
 };
+
+Board.prototype.setupDefenseMatrix = function () {
+
+    this.initDefenseMatrix();
+
+    var squaresWithPieces = this.getAllSquaresWithPieces();
+
+    for (var i = 0; i < squaresWithPieces.length; i++) {
+
+        var square = squaresWithPieces[i];
+
+        var legalDefensesForSquare = this.Movement.getAllLegalDefenseMovesFromSquare(square);
+
+        for (var j = 0; j < legalDefensesForSquare.length; j++) {
+
+            var defenseMove = legalDefensesForSquare[j];
+
+            this.DefenseMatrix[defenseMove.SquareTo.Col][defenseMove.SquareTo.Row].push(defenseMove.SquareOn);
+
+        }
+
+    }
+
+}
 
 Board.prototype.movePieceTo = function (squareOn, squareTo) {
 

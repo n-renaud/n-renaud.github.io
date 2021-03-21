@@ -1,4 +1,5 @@
-﻿
+﻿//Plays random offensive move, then random move
+
 function Betty(colorPlaying, board) {
 
     Agent.call(this, BettyId, colorPlaying, board);
@@ -14,10 +15,11 @@ Betty.prototype.agentMove = function () {
     if (moves.length == 0)
         return;
 
-    var randomMove = getRandomInt(0, moves.length - 1);
+    var offensiveMoves = this.extractOffensiveMoves(moves);
 
-    var moveToPerform = moves[randomMove];
-
-    this.GameBoard.performMove(moveToPerform.SquareOn, moveToPerform.SquareTo);
+    if (offensiveMoves.length == 0)
+        this.executeRandomMove(moves);
+    else
+        this.executeRandomMove(offensiveMoves);
 
 };

@@ -129,7 +129,7 @@ function resolveMove() {
     else
         setTimeout(function () { // timeout to allow the board to redraw before alert is posted
             alert(currentGameBoard.GameResult);
-        }, 100);
+        }, 500);
 
 }
 
@@ -159,6 +159,8 @@ function initAllPiecesDraggable() {
 
         showPieceAvailableMoves(this);
 
+        showPieceAvailableDefenses(this);
+
     });
 
     $(".piece").draggable({
@@ -167,6 +169,7 @@ function initAllPiecesDraggable() {
         zIndex: 9999,
         start: function (event, ui) {
             showPieceAvailableMoves(event.target);
+            showPieceAvailableDefenses(event.target);
         }
     });
 
@@ -179,6 +182,16 @@ function showPieceAvailableMoves(piece) {
     var squareOn = getSquareOn(piece);
 
     showAvailableMoves(squareOn);
+
+}
+
+function showPieceAvailableDefenses(piece) {
+
+    $(".defense").removeClass("defense");
+
+    var squareOn = getSquareOn(piece);
+
+    showAvailableDefenses(squareOn);
 
 }
 
@@ -201,6 +214,19 @@ function showAvailableMoves(square) {
         var move = legalMoves[i];
 
         $(".square[data-row=" + move.SquareTo.Row + "][data-col=" + move.SquareTo.Col + "]").prepend("<div class='dot'></div>");
+
+    }
+
+};
+
+function showAvailableDefenses(square) {
+
+    var legalDefenses = currentGameBoard.Movement.getAllLegalDefenseMovesFromSquare(square);
+
+    for (var i = 0; i < legalDefenses.length; i++) {
+        var move = legalDefenses[i];
+
+        $(".square[data-row=" + move.SquareTo.Row + "][data-col=" + move.SquareTo.Col + "]").addClass("defense");
 
     }
 
